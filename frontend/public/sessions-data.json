@@ -5,7 +5,7 @@
             "practicesession_id": 1,
             "freeform": {
                 "practicesession_id": 1,
-                "subskill": "Using more open-ended questions/probes",
+                "subskill": "Using more open-ended questions/",
                 "target_utterance": "<<You:>> 9th grade - the first year of high school. How has that been going? I know transitions to new schools can be a mix of emotions and new experiences.",
                 "utterance_rewind": "I'm in ninth grade.\n<<You:>> 9th grade - the first year of high school. How has that been going? I know transitions to new schools can be a mix of emotions and new experiences.\n<<Patient:>> I guess it's alright."
             },
