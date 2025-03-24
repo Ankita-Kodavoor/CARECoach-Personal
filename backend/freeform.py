@@ -127,14 +127,14 @@ def get_system_prompt_freeform(freeform_state, utterance_rewind, conversation_hi
             prompt = prompt.replace("{{utterance_rewind}}", utterance_rewind)
             prompt = prompt.replace("{{the goal}}", subskill) 
             prompt = prompt.replace("{{current_state}}", freeform_state)  
-        elif freeform_state == "stage_F":
-            print("Stage F", file=sys.stderr)
-            prompt = prompt.replace("{{Instructions}}", SYSTEM_PROMPT_FREEFORM_F)
-            prompt = prompt.replace("{{conversation_history}}", conversation_history)
-            prompt = prompt.replace("{{subskill}}", subskill)
-            prompt = prompt.replace("{{utterance_rewind}}", utterance_rewind)
-            prompt = prompt.replace("{{the goal}}", subskill)
-            prompt = prompt.replace("{{current_state}}", freeform_state)
+        # elif freeform_state == "stage_F":
+        #     print("Stage F", file=sys.stderr)
+        #     prompt = prompt.replace("{{Instructions}}", SYSTEM_PROMPT_FREEFORM_F)
+        #     prompt = prompt.replace("{{conversation_history}}", conversation_history)
+        #     prompt = prompt.replace("{{subskill}}", subskill)
+        #     prompt = prompt.replace("{{utterance_rewind}}", utterance_rewind)
+        #     prompt = prompt.replace("{{the goal}}", subskill)
+        #     prompt = prompt.replace("{{current_state}}", freeform_state)
         else:
             # Default case if no valid stage is provided
             print(f"Unknown stage: {freeform_state}, using default", file=sys.stderr)
