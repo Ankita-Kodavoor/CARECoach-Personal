@@ -44,5 +44,5 @@ ENV NODE_ENV=production
 # Expose port (Railway will override this with its own PORT)
 EXPOSE 8000
 
-# # Let Railway.json handle the start command
-# CMD ["uvicorn", "backend.websocket_server:app", "--host", "0.0.0.0", "--port", "8000"]
+# Let Railway.json handle the start command
+CMD uvicorn backend.websocket_server:app --host 0.0.0.0 --port ${PORT:-5000}
