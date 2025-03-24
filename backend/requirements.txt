@@ -1,0 +1,12 @@
+flask
+flask-cors
+sqlite
+
+^X
+
+/Users/ankitakodavoor/Desktop/CARE_Ankita/CARE-adaptive-curriculum-main/venv/bin/python /Users/ankitakodavoor/Desktop/CARE_Ankita/CARE-adaptive-curriculum-main/backend/app.py
+
+
+
+
+

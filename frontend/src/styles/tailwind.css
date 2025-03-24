@@ -1,0 +1,20 @@
+/* tailwind.css - Include only Tailwind CSS directives */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Add any custom utilities or components here if needed */
+@layer components {
+  /* Example custom component class that uses Tailwind under the hood */
+  .btn-primary {
+    @apply px-4 py-2 bg-red-500 text-white rounded hover:bg-blue-600 transition-colors;
+    
+  }
+}
+
+/* Any global styles that you want to keep */
+html, body {
+  font-family: 'Inter', sans-serif;
+  height: 100%;
+}

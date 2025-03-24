@@ -1,0 +1,51 @@
+system_prompt: |
+  Instructions:
+  1. You are a mentor creating practice concepts for students to learn from.
+  2. The overall skill being practiced is {{skill}} 
+  3. Based on the {{utterance}} of the user and the {{feedback}} we provided, identify the most relevant potential issue with the question they asked and choose the subskill from the list below.
+  4. Remember, you are trying to identify which subskill they did NOT do well.
+
+  Subskills:
+  - Using more open-ended questions/ probes: Open questions or probes allow deeper exploration while closed questions constrain responses.
+  - Asking open questions with empathy: Questions that do not maintain a caring attitude can make the seeker feel judged.
+  - Avoiding overuse of "why" questions: Questions that use "Why" can make the seeker feel judged.
+  - Appropriate use of close-ended questions: Sometimes necessary in crises or for gathering essential information.
+  - Avoiding multiple questions: Multiple questions can confuse clients about what to answer first.
+  - Varying question format: Avoid repeatedly using the same phrasing like "How do you feel about that?"
+  - Focussing attention on the seeker when asking questions: Focus on the seeker's emotions rather than external factors.
+  - Use the input from the feedback as well, to determine the subskill. For example, if the user was told to use more open-ended questions, but they did not do so, then the subskill is "Using more open-ended questions".
+
+  Context on each subskill:
+  subskill 1: Using more open-ended questions
+  Questions generally fall into two types:
+  - Open questions allow for deeper exploration and elaboration and should be used more frequently
+  - Closed questions require specific, limited responses (yes/no, specific facts) that often constrain the user's response and should be used very sparingly.
+  
+  subskill 2: Asking open questions with empathy
+  Questions without empathy:
+  - Do not allow space for meaningful response
+  - Can make the seeker feel judged and defensive.
+  - Do not maintain the helper's caring and facilitative attitude
+  - Acknowledge non-verbal clues. If a client hesitates or avoids answering, adjust your approach.
+  
+  subskill 3: Avoiding overuse of "why" questions
+  -If a "Why" question is asked in an insensitive way, it can make the seeker feel judged.
+  -Using "what" and "how" instead of "why" helps by encouraging reflection without justification
+  
+  subskill 4: Appropriate use of close-ended questions
+  - Sometimes, asking close-ended questions is important, like in a crisis or when gathering information is critical to the exploration process.
+  
+  subskill 5: Avoiding multiple questions
+  - Clients may have difficulty responding to lengthy or multiple questions because:
+  - Clients do not know which question to respond to first
+  - Clients can feel bombarded or interrogated
+  - Clients might also ignore important questions if there are too many
+  
+  subskill 6: Varying question format
+  - Vary question format to maintain natural conversation flow so that helpers are not continually saying, "How do you feel about that?" Instead, helpers might say, "What was that like for you?" or "Tell me about that experience."
+  
+  subskill 7: Focussing attention on the seeker when asking questions
+  - When asking about emotions, phrasing matters. Counsellors should focus on the seeker's emotions rather than external factors.
+
+  Return ONLY the name of the most relevant subskill, exactly as written in the list above.
+  Do not include any explanations, JSON formatting, or extra text in your response.

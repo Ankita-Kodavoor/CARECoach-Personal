@@ -1,0 +1,170 @@
+{
+    "sessions": 
+    [
+        {
+            "practicesession_id": 1,
+            "freeform": {
+                "practicesession_id": 1,
+                "subskill": "Using more open-ended questions/probes",
+                "target_utterance": "<<You:>> 9th grade - the first year of high school. How has that been going? I know transitions to new schools can be a mix of emotions and new experiences.",
+                "utterance_rewind": "I'm in ninth grade.\n<<You:>> 9th grade - the first year of high school. How has that been going? I know transitions to new schools can be a mix of emotions and new experiences.\n<<Patient:>> I guess it's alright."
+            },
+            "assessment": {
+                "skills": [
+                    { "name": "Questions", "mistakes": 3 },
+                    { "name": "Validation", "mistakes": 2 },
+                    { "name": "Reflection", "mistakes": 2 },
+                    { "name": "Empathy", "mistakes": 1 }
+                ]
+            }
+        },
+        {
+            "practicesession_id": 16,
+            "knowledgeBite": {
+                "practicesession_id": 16,
+                "subskill": "Asking open questions with empathy",
+                "generated_knowledge_bite": "<Description> Questions with empathy allow space for meaningful response and acknowledge non-verbal clues. If a client hesitates or avoids answering, adjust your approach. <Examples> Example 1: \"You've been really thoughtful about this decision. What else have you considered?\" Example 2: If they seem withdrawn, a gentle probe like \"I sense this is hard to talk about—what's on your mind?\" may help.",
+                "timestamp": "2025-02-18T10:15:00Z",
+                "helpful": true
+            },
+            "mcq": {
+                "practicesession_id": 16,
+                "generated_mcq": "<<Patient:>> Yeah, quiet is good. I just... don't have much to say.\n<<You:>> Uh huh.\n<<Patient:>> Do you ever feel like not talking? Just sitting there and not worrying about anything?",
+                "optionA": "I see. So, it's like you're feeling a bit drained and don't feel like engaging in any activities or talking about anything in particular. Can you tell me more about that?",
+                "optionB": "I see. So, it's like you're feeling a bit drained and don't feel like engaging in any activities or talking about anything in particular. Did something specific make you feel this way today?",
+                "optionC": "I see. So, it's like you're feeling a bit drained and don't feel like engaging in any activities or talking about anything in particular. Why do you think you feel this way?",
+                "mcq_correct_answer": "A",
+                "mcq_answer_recorded": null,
+                "mcq_feedback_a": "Great job! Your response uses an open-ended question and shows empathy by acknowledging the patient's feelings of being drained and uninterested in talking. This invites the patient to share more about their experience.",
+                "mcq_feedback_b": "Your response was on the right track in trying to connect with the patient's emotions, but it could be improved. By asking \"Did something specific make you feel this way today?\", you narrowed the focus too much and made it less open-ended. A better approach would be to ask, \"Can you tell me more about that?\" which encourages the patient to explore their feelings in an open and empathetic way.",
+                "mcq_feedback_c": "Your response uses a \"why\" question, which can make clients feel defensive and uncomfortable. Instead, try, \"Can you tell me more about that?\" This open-ended question is empathetic and encourages the patient to explore their feelings in detail without pressure.",
+                "mcq_generated_time": "2025-02-18T10:18:00Z",
+                "is_mcq_correct": true,
+                "mcq_activity_time": null
+            },
+            "freeform": {
+                "practicesession_id": 16,
+                "generated_freeform": "<<Patient Message 1:>> Sometimes I prefer silence because it feels like there's too much noise in my life already."
+            },
+            "assessment": {
+                "skills": [
+                    { "name": "Questions", "mistakes": 3 },
+                    { "name": "Validation", "mistakes": 2 },
+                    { "name": "Reflection", "mistakes": 1 },
+                    { "name": "Empathy", "mistakes": 2 }
+                ]
+            }
+        },
+        {           
+            "practicesession_id": 17,
+            "knowledgeBite": {
+                "practicesession_id": 17,
+                "subskill": "Asking open questions with empathy",
+                "generated_knowledge_bite": "<Description> Questions with empathy: - Allow space for meaningful response - Maintain the helper's caring and facilitative attitude - Are paired with validations of the client's strengths - Acknowledge non-verbal clues. If a client hesitates or avoids answering, adjust your approach. <Example 1:> \"You've been really thoughtful about this decision. What else have you considered?\" <Example 2:> If they seem withdrawn, a gentle probe like \"I sense this is hard to talk about—what's on your mind?\" may help.",
+                "timestamp": "2025-02-18T10:20:00Z",
+                "helpful": true
+            },
+            "mcq": {
+                "practicesession_id": 17,
+                "generated_mcq": "<<You:>> Hi Alex, how are you doing today?\n<<Patient:>> Hi, thank you for asking. I've been feeling quite overwhelmed with anxiety, especially with the thought of having to work in groups this week. Whenever I'm around too many people, my heart races and I get sweaty palms; it's really uncomfortable.",
+                "optionA": "I'm really sorry to hear that you're feeling this way. Is there a specific task in the group that makes you anxious?",
+                "optionB": "I'm really sorry to hear that you're feeling this way. Can you share more about a recent time when you felt this overwhelming anxiety, so we can explore it together?",
+                "optionC": "I'm really sorry to hear that you're feeling this way. Why do you think being in a group makes you anxious?",
+                "mcq_correct_answer": "B",
+                "mcq_answer_recorded": null,
+                "mcq_feedback_a": "Your question is too focused on a specific task, which could lead to closed answers. Instead, ask open-ended questions to allow for a broader exploration of emotions. \"Can you share more about a recent time when you felt this overwhelming anxiety, so we can explore it together?\" encourages the patient to discuss their experiences and feelings more deeply.",
+                "mcq_feedback_b": "Great job! Your question shows empathy and invites the patient to share more about their experience, which helps in exploring their feelings in detail.",
+                "mcq_feedback_c": "Your answer missed the mark. Asking \"Why do you think being in a group makes you anxious?\" can feel blaming or make the patient defensive. Instead, try asking, \"Can you share more about a recent time when you felt this overwhelming anxiety, so we can explore it together?\" This open question encourages sharing and shows empathy.",
+                "mcq_generated_time": "2025-02-18T10:22:00Z",
+                "is_mcq_correct": true,
+                "mcq_activity_time": null
+            },
+            "freeform": {
+                "practicesession_id": 17,
+                "generated_freeform": "<<Patient Message 1:>> I'm really stressed about an upcoming presentation; just thinking about speaking in front of the class makes my stomach knot up."
+            },
+            "assessment": {
+                "skills": [
+                    { "name": "Questions", "mistakes": 3 },
+                    { "name": "Validation", "mistakes": 2 },
+                    { "name": "Reflection", "mistakes": 1 },
+                    { "name": "Empathy", "mistakes": 2 }
+                ]
+            }
+        },
+        {
+            "practicesession_id": 18,
+            "knowledgeBite": {
+                "practicesession_id": 18,
+                "subskill": "Using more open-ended questions/probes",
+                "generated_knowledge_bite": "<Description> Questions generally fall into two types: - Open questions allow for deeper exploration and elaboration and should be used more frequently - Closed questions require specific, limited responses (yes/no, specific facts) that often constrain the user's response and should be used very sparingly. <List of examples> Example 1 Client: \"I'm not sure what to do about my job.\" Counselor: \"How have you been thinking about this situation?\" Example 2 Client: \"My partner and I had another fight.\" Counselor: \"Tell me more about what happens between you two.\"",
+                "timestamp": "2025-02-18T10:25:00Z",
+                "helpful": true
+            },
+            "mcq": {
+                "practicesession_id": 18,
+                "generated_mcq": "<<You:>> Hi, how are you doing?\n<<Patient:>> I've been better. The holidays just amplify the feeling of being left out since I'm not in contact with my family.",
+                "optionA": "The holidays can be tough when you're feeling left out. Do you plan to contact your family soon?",
+                "optionB": "The holidays can be tough when you're feeling left out. How has not being in contact with your family affected you?",
+                "optionC": "The holidays can be tough when you're feeling left out. Have you thought about why you're not in contact with your family?",
+                "mcq_correct_answer": "B",
+                "mcq_answer_recorded": null,
+                "mcq_feedback_a": "It seems like you asked if the patient plans to contact their family soon, which is a close-ended question focused on what they might do rather than how they feel. Try asking \"How has not being in contact with your family affected you?\" This open-ended question gives the patient a chance to express their emotions and experiences more freely.",
+                "mcq_feedback_b": "Great job! This open-ended question invites the patient to explore their feelings and the impact of not being in contact with their family, allowing for a deeper understanding of their experience.",
+                "mcq_feedback_c": "Your response focused on asking \"why\" they're not in contact with their family, which can make them defensive. Instead, asking \"How has not being in contact with your family affected you?\" is more open-ended and invites them to explore their emotions.",
+                "mcq_generated_time": "2025-02-18T10:28:00Z",
+                "mcq_activity_time": null,
+                "is_mcq_correct": true
+            },
+            "freeform": {
+                "practicesession_id": 18,
+                "generated_freeform": "<<Patient Message 1:>> Lately, I've felt overwhelmed by the amount of work I have and can't seem to catch a break."
+            },
+            "assessment": {
+                "skills": [
+                    { "name": "Questions", "mistakes": 3 },
+                    { "name": "Validation", "mistakes": 2 },
+                    { "name": "Reflection", "mistakes": 1 },
+                    { "name": "Empathy", "mistakes": 2 }
+                ]
+            }
+        },
+        {
+            "practicesession_id": 5,
+            "knowledgeBite": {
+                "practicesession_id": 5,
+                "subskill": "Asking open questions with empathy",
+                "generated_knowledge_bite": "<Description> Questions with empathy: - Allow space for meaningful response - Are paired with validations of the client's strengths - Acknowledge non-verbal clues. If a client hesitates or avoids answering, adjust your approach. <List of examples> Example 1: \"You've been really thoughtful about this decision. What else have you considered?\" Example 2: If they seem withdrawn, a gentle probe like \"I sense this is hard to talk about—what's on your mind?\" may help.",
+                "timestamp": "2025-02-18T10:30:00Z",
+                "helpful": true
+            },
+            "mcq": {
+                "practicesession_id": 5,
+                "generated_mcq": "<<Patient:>> I've been sticking mostly to water. Not sure why you're asking, though. How does this relate to what I'm feeling?\n<<You:>> It's just a refreshment, just making sure you stay hydrated.\n<<Patient:>> I get that, hydration is important. Still, it's hard to focus on self-care when you're dealing with emotional turmoil, you know?",
+                "optionA": "It sounds like the holidays bring up some difficult feelings for you. Can you share more about what makes this time of year particularly challenging?",
+                "optionB": "It sounds like the holidays bring up some difficult feelings for you. Why do you think this time of year is so hard for you?",
+                "optionC": "It sounds like the holidays bring up some difficult feelings for you. Which part of the holidays do you struggle with most?",
+                "mcq_correct_answer": "A",
+                "mcq_answer_recorded": null,
+                "mcq_feedback_a": "Great job! Your response effectively uses an open-ended question that empathizes with the client's experience, encouraging them to explore and share more about their feelings and the challenges of this time of year.",
+                "mcq_feedback_b": "Your answer was incorrect because it includes a \"why\" question, which can be hard to answer and make the client defensive. The correct approach is: \"It sounds like the holidays bring up some difficult feelings for you. Can you share more about what makes this time of year particularly challenging?\" This encourages the client to openly explore their feelings without feeling pressured to justify them.",
+                "mcq_feedback_c": "Your answer missed the empathetic angle. By asking specifically about the holidays and focusing on a part of it (\"Which part of the holidays do you struggle with most?\"), it might seem you're directing or trailing away from the broader emotional turmoil they're experiencing. Instead, asking \"Can you share more about what makes this time of year particularly challenging?\" shows empathy and opens up space for them to express broader feelings, helping you understand better.",
+                "mcq_generated_time": "2025-02-18T10:33:00Z",
+                "mcq_activity_time": null,
+                "is_mcq_correct": true
+            },
+            "freeform": {
+                "practicesession_id": 5,
+                "generated_freeform": "<<Patient Message 1:>> I've been sticking mostly to water. Not sure why you're asking, though. How does this relate to what I'm feeling?"
+            },
+            "assessment": {
+                "skills": [
+                    { "name": "Questions", "mistakes": 3 },
+                    { "name": "Validation", "mistakes": 2 },
+                    { "name": "Reflection", "mistakes": 1 },
+                    { "name": "Empathy", "mistakes": 2 }
+                ]
+            }
+        }
+    ]
+}
