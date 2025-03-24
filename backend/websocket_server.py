@@ -13,11 +13,21 @@ from response_scorer import score_and_update
 # Import get_freeform directly
 from freeform import get_freeform
 
-# Set up database path
+# Set up database path using environment variable
 current_dir = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(current_dir, "test_input_v3.db")
+DB_PATH = os.environ.get('DB_PATH', os.path.join(current_dir, "test_input_v3.db"))
 
 print(f"Using database at: {DB_PATH}", file=sys.stderr)
+
+# Check if database exists and create it if not
+if not os.path.exists(DB_PATH):
+    print(f"Database not found at {DB_PATH}. Creating new database...", file=sys.stderr)
+    try:
+        from create_input_database import create_new_database
+        create_new_database()
+        print(f"New database created at {DB_PATH}", file=sys.stderr)
+    except Exception as e:
+        print(f"Failed to create database: {str(e)}", file=sys.stderr)
 
 # Create FastAPI app
 app = FastAPI()
@@ -58,6 +68,13 @@ class ConnectionManager:
 public_dir = os.path.join(current_dir, "public")
 if os.path.exists(public_dir) and os.path.isdir(public_dir):
     app.mount("/", StaticFiles(directory=public_dir), name="public")
+
+# Mount the frontend build folder if available (for production)
+frontend_build_dir = os.path.join(os.path.dirname(current_dir), "public")
+if os.path.exists(frontend_build_dir) and os.path.isdir(frontend_build_dir):
+    # Mount frontend build folder as the root
+    app.mount("/", StaticFiles(directory=frontend_build_dir, html=True), name="frontend")
+    print(f"Mounted frontend build directory: {frontend_build_dir}", file=sys.stderr)
 
 # Initialize connection manager
 manager = ConnectionManager()
@@ -517,7 +534,8 @@ async def get_subskill_progress_api(practicesession_id: int):
             }
         }
         
-# Run the server
+# Run the server with dynamic port from environment
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=5000)
+    port = int(os.environ.get("PORT", 5000))
+    uvicorn.run(app, host="0.0.0.0", port=port)

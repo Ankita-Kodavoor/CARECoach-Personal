@@ -25,11 +25,13 @@ organization = os.getenv("OPENAI_ORGANIZATION")
 project = os.getenv("OPENAI_PROJECT")
 
 print(f"OpenAI API Key available: {bool(api_key)}", file=sys.stderr)
-client = OpenAI(organization=organization, project=project, api_key=api_key)
+client = OpenAI(api_key=api_key, organization=organization, project=project)
 
-# Set database path
+# Set database path using environment variable
 current_dir = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(current_dir, "test_input_v3.db")
+DB_PATH = os.environ.get('DB_PATH', os.path.join(current_dir, "test_input_v3.db"))
+
+print(f"Freeform module using DB path: {DB_PATH}", file=sys.stderr)
 
 # Default values for when data is missing
 DEFAULT_SUBSKILL = "Using more open-ended questions/probes"
@@ -61,21 +63,23 @@ class StateTransition(BaseModel):
 
 # Load system prompts
 try:
-    with open("./prompts/system_prompt_freeform.txt", "r") as file:
+    prompts_dir = os.path.join(current_dir, "prompts")
+    
+    with open(os.path.join(prompts_dir, "system_prompt_freeform.txt"), "r") as file:
         SYSTEM_PROMPT_TEMPLATE = file.read()
-    with open("./prompts/system_prompt_freeform_state.txt", "r") as file:
+    with open(os.path.join(prompts_dir, "system_prompt_freeform_state.txt"), "r") as file:
         SYSTEM_PROMPT_FREEFORM_STATE = file.read()
-    with open("./prompts/StageA.txt", "r") as file:
+    with open(os.path.join(prompts_dir, "StageA.txt"), "r") as file:
         SYSTEM_PROMPT_FREEFORM_A = file.read()
-    with open("./prompts/StageB.txt", "r") as file:
+    with open(os.path.join(prompts_dir, "StageB.txt"), "r") as file:
         SYSTEM_PROMPT_FREEFORM_B = file.read()
-    with open("./prompts/StageC.txt", "r") as file:
+    with open(os.path.join(prompts_dir, "StageC.txt"), "r") as file:
         SYSTEM_PROMPT_FREEFORM_C = file.read()
-    with open("./prompts/StageD.txt", "r") as file:
+    with open(os.path.join(prompts_dir, "StageD.txt"), "r") as file:
         SYSTEM_PROMPT_FREEFORM_D = file.read()
-    with open("./prompts/StageE.txt", "r") as file:
+    with open(os.path.join(prompts_dir, "StageE.txt"), "r") as file:
         SYSTEM_PROMPT_FREEFORM_E = file.read()
-    with open("./prompts/StageF.txt", "r") as file:
+    with open(os.path.join(prompts_dir, "StageF.txt"), "r") as file:
         SYSTEM_PROMPT_FREEFORM_F = file.read()
     print("Successfully loaded all prompt templates", file=sys.stderr)
 except Exception as e:
@@ -162,7 +166,7 @@ def get_state_classification_prompt(conversation_history, subskill, user_message
     try:
         # Load the state classification prompt from file
         try:
-            with open("./prompts/state_classification_prompt.txt", "r") as file:
+            with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "prompts", "state_classification_prompt.txt"), "r") as file:
                 state_classification_prompt = file.read()
         except FileNotFoundError:
             # If file doesn't exist, use default template
@@ -540,7 +544,6 @@ def update_practice_session_state(practicesession_id, state, transition_decision
         print(f"Error updating practice session state: {str(e)}", file=sys.stderr)
         traceback.print_exc(file=sys.stderr)
         return False
-
 
 
 async def get_freeform(user_id, chat_code):

@@ -4,6 +4,7 @@ import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { Textarea } from '../components/ui/textarea';
 import { Loader2, Send } from 'lucide-react';
+import { getWebSocketUrl } from '../config/api';
 
 // Function to format message text with bold tags and newlines
 const formatMessageText = (text, onOptionClick) => {
@@ -271,7 +272,7 @@ const Freeform = ({ practicesession_id, user_id, onProgressUpdate }) => {
     fetchUtteranceRewind();
   }, [practicesession_id]);
 
-  // Setup WebSocket connection - preserving original WebSocket implementation
+  // Setup WebSocket connection - UPDATED to use getWebSocketUrl helper
   useEffect(() => {
     // Only attempt connection once
     if (connectionAttemptedRef.current) return;
@@ -283,10 +284,8 @@ const Freeform = ({ practicesession_id, user_id, onProgressUpdate }) => {
     connectionAttemptedRef.current = true;
     console.log(`Connecting to WebSocket with practicesession_id: ${practicesession_id}`);
     
-    // Create WebSocket connection
-    const wsProtocol = window.location.protocol === "https:" ? "wss://" : "ws://";
-    // Use current hostname with port 5000
-    const wsUrl = `${wsProtocol}${window.location.hostname}:5000/ws/session/${practicesession_id}`;
+    // Use the getWebSocketUrl helper to get the appropriate WebSocket URL
+    const wsUrl = getWebSocketUrl(`/ws/session/${practicesession_id}`);
     
     console.log("Attempting WebSocket connection to:", wsUrl);
     
