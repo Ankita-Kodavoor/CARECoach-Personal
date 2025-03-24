@@ -32,7 +32,7 @@ def subskill_classifier(utterance, feedback=None):
         return "Using more open-ended questions/probes"
 
 # existing database
-DB_PATH = "saltcare.db" 
+DB_PATH = "/Users/ankitakodavoor/Desktop/saltcare.db"
 # new database 
 NEW_DB_PATH = "test_input_v3.db"
 

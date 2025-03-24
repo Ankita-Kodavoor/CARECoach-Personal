@@ -4,7 +4,7 @@ from collections import defaultdict
 import os
 
 # Database path
-DATABASE_PATH = os.path.abspath("saltcare.db") 
+DATABASE_PATH = "/Users/ankitakodavoor/Desktop/saltcare.db"
 
 # Connect to the SQLite database
 def connect_db(): 
