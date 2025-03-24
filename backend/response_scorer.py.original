@@ -4,20 +4,20 @@ simple_response_scorer.py - Minimal OpenAI-based response scoring
 import os
 import sys
 import sqlite3
-from openai import OpenAI
+from openai import OpenAI  # Changed import style
 from dotenv import load_dotenv
 
 # Load environment variables for OpenAI
 load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY")
+organization = os.getenv("OPENAI_ORGANIZATION")
+project = os.getenv("OPENAI_PROJECT")
 
-# organization = os.getenv("OPENAI_ORGANIZATION")
-# project parameter is not supported in the new OpenAI client
-# project = os.getenv("OPENAI_PROJECT")
- # organization=organization
-# Initialize OpenAI client with only supported parameters
-
-client = OpenAI(api_key=api_key)
+# Initialize OpenAI client
+client = OpenAI(
+    api_key=api_key,
+    organization=organization
+)  # Updated client initialization
 
 # Set database path
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -90,7 +90,7 @@ def score_response(conversation_history):
         Output: Null
         """
 
-        # Make the API call
+        # Make the API call - Updated API call syntax
         response = client.chat.completions.create(
             model="gpt-4o",  # Using smaller model for efficiency
             messages=[
@@ -116,11 +116,11 @@ def score_response(conversation_history):
             return 0
         else:
             print(f"Couldn't extract score from: {score_text}", file=sys.stderr)
-            return None  # Default to None if parsing fails
+            return None  # Default to 1 if parsing fails
             
     except Exception as e:
         print(f"Error in score_response: {str(e)}", file=sys.stderr)
-        return None  # Default to None on error
+        return None  # Default to 1 on error
 
 
 def update_last_user_score(practicesession_id, score, utterance):
@@ -160,7 +160,7 @@ def update_last_user_score(practicesession_id, score, utterance):
         # If no rows were affected, insert a new record
         if cursor.rowcount == 0:
             cursor.execute("""
-                INSERT INTO score_history (practice_chat_id, practicesession_id, score, utterance)
+                INSERT INTO score_history (practice_chat_id, practicesession_id, score, utterance   )
                 VALUES (?, ?, ?, ?)
             """, (practice_chat_id, practicesession_id, score, utterance))
             
@@ -192,10 +192,10 @@ def score_and_update(practicesession_id, conversation_history, utterance):
 # if __name__ == "__main__":
 #     # Example response
 #     example_response = "I hear your concerns. Let's explore this further."
-    
+#     
 #     # Example practice session ID - replace with a valid ID for testing
 #     example_id = 1
-    
+#     
 #     # Score and update
 #     result = score_and_update(example_id, example_response)
 #     print(f"Response scored: {result}")

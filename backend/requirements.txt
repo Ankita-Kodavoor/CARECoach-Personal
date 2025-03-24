@@ -1,12 +1,13 @@
-flask
-flask-cors
-sqlite
-
-^X
-
-/Users/ankitakodavoor/Desktop/CARE_Ankita/CARE-adaptive-curriculum-main/venv/bin/python /Users/ankitakodavoor/Desktop/CARE_Ankita/CARE-adaptive-curriculum-main/backend/app.py
-
-
-
-
-
+fastapi==0.109.2
+uvicorn==0.27.1
+python-dotenv==1.0.1
+websockets==12.0
+flask-cors==4.0.0
+python-multipart==0.0.9
+pyyaml==6.0.2 
+pydantic>=2.0.0  # Better data validation for FastAPI
+sqlalchemy==2.0.27  # For database ORM if you're using SQLite
+alembic==1.12.1  # For database migrations
+pytest==7.4.3   # For writing tests
+pytest-asyncio==0.21.1  # If you have async tests
+python-jose==3.3.0  # If you need JWT authentication
