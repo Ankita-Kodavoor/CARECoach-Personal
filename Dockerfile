@@ -31,19 +31,18 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy built frontend assets
 COPY --from=frontend-builder /app/frontend/build /app/public
 
-# Copy backend code
-COPY backend/ ./
+# Copy backend code - make sure it goes into a backend directory
+COPY backend/ ./backend/
 
 # Create a directory for the database
 RUN mkdir -p /data
 
 # Environment variables
 ENV DB_PATH=/data/test_input_v3.db
-ENV PORT=5000
 ENV NODE_ENV=production
 
-# Expose port for the application
-EXPOSE 5000
+# Expose port (Railway will override this with its own PORT)
+EXPOSE 8000
 
-# Start command
-CMD ["uvicorn", "websocket_server:app", "--host", "0.0.0.0", "--port", "5000"]
+# # Let Railway.json handle the start command
+# CMD ["uvicorn", "backend.websocket_server:app", "--host", "0.0.0.0", "--port", "8000"]
