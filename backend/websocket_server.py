@@ -69,13 +69,6 @@ public_dir = os.path.join(current_dir, "public")
 if os.path.exists(public_dir) and os.path.isdir(public_dir):
     app.mount("/", StaticFiles(directory=public_dir), name="public")
 
-# Mount the frontend build folder if available (for production)
-frontend_build_dir = os.path.join(os.path.dirname(current_dir), "public")
-if os.path.exists(frontend_build_dir) and os.path.isdir(frontend_build_dir):
-    # Mount frontend build folder as the root
-    app.mount("/", StaticFiles(directory=frontend_build_dir, html=True), name="frontend")
-    print(f"Mounted frontend build directory: {frontend_build_dir}", file=sys.stderr)
-
 # Initialize connection manager
 manager = ConnectionManager()
 
