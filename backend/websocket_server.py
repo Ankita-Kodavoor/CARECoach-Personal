@@ -8,7 +8,7 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 import datetime
-from response_scorer import score_and_update
+# from response_scorer import score_and_update
 
 # Import get_freeform directly
 from freeform import get_freeform
