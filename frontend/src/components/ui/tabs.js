@@ -1,6 +1,6 @@
 // src/components/ui/tabs.js
 import * as React from "react";
-import { cn } from "../../lib/utils";
+import { cn } from "../../li  b/utils";
 
 const Tabs = React.forwardRef(({ className, defaultValue, value, onValueChange, children, ...props }, ref) => {
   const [activeTab, setActiveTab] = React.useState(value || defaultValue);
