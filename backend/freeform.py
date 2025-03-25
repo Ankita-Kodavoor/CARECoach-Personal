@@ -9,8 +9,8 @@ import json
 import traceback
 from typing import Any, Literal, Optional
 from pydantic import BaseModel, Field
-from response_scorer import score_and_update
-from subskill_manager import (
+from .response_scorer import score_and_update
+from .subskill_manager import (
     get_next_subskill, 
     mark_subskill_completed, 
     update_session_with_next_subskill,

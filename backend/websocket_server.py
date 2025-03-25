@@ -7,11 +7,8 @@ import inspect
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-import datetime
-# from response_scorer import score_and_update
-
-# Import get_freeform directly
-from freeform import get_freeform
+from .response_scorer import score_and_update
+from .freeform import get_freeform
 
 # Set up database path using environment variable
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -23,7 +20,7 @@ print(f"Using database at: {DB_PATH}", file=sys.stderr)
 if not os.path.exists(DB_PATH):
     print(f"Database not found at {DB_PATH}. Creating new database...", file=sys.stderr)
     try:
-        from create_input_database import create_new_database
+        from .create_input_database import create_new_database
         create_new_database()
         print(f"New database created at {DB_PATH}", file=sys.stderr)
     except Exception as e:

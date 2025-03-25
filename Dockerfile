@@ -1,28 +1,33 @@
-# Single-stage build for simplicity
+# Python application with FastAPI
 FROM python:3.9-slim
 
 WORKDIR /app
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    python3-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements and install dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy all your code
+# Copy the application code
 COPY . .
 
-# Create data directory
+# Create data directory with appropriate permissions
 RUN mkdir -p /data && chmod 777 /data
 
 # Set environment variables
 ENV DB_PATH=/data/test_input_v3.db
 ENV PYTHONUNBUFFERED=1
-ENV PYTHONPATH=/app
 
-# Debug - list files to verify structure
-RUN echo "Files in backend directory:" && ls -la backend/
+# Add empty __init__.py if it doesn't exist
+RUN if [ ! -f /app/backend/__init__.py ]; then echo "# Package init" > /app/backend/__init__.py; fi
 
-# Expose port
+# Expose the port
 EXPOSE 5000
 
-# Run from the root directory, using the module path
-CMD ["uvicorn", "backend.websocket_server:app", "--host", "0.0.0.0", "--port", "${PORT:-5000}"]
+# Run the application as a module (-m flag makes Python treat it as a package)
+CMD ["python", "-m", "uvicorn", "backend.websocket_server:app", "--host", "0.0.0.0", "--port", "${PORT:-5000}"]
