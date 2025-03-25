@@ -12,8 +12,10 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
+api_key=os.getenv("OPENAI_API_KEY")
+
 # Initialize the OpenAI client
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+client = OpenAI()
 
 def load_system_prompt():
     """Load the system prompt from the YAML file"""

@@ -25,7 +25,8 @@ organization = os.getenv("OPENAI_ORGANIZATION")
 project = os.getenv("OPENAI_PROJECT")
 
 print(f"OpenAI API Key available: {bool(api_key)}", file=sys.stderr)
-client = OpenAI(api_key=api_key, organization=organization, project=project)
+client = OpenAI()
+# client = OpenAI(api_key=api_key, organization=organization, project=project)
 
 # Set database path using environment variable
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -171,47 +172,7 @@ def get_state_classification_prompt(conversation_history, subskill, user_message
         except FileNotFoundError:
             # If file doesn't exist, use default template
             state_classification_prompt = """
-You are an AI therapy mentor who coaches novice therapists to upskill on foundational motivational interviewing skills.
-
-Your task is to determine whether the current dialogue task has been achieved based on the conversation history provided. First, review the following dialogue history between you and the therapist you are coaching:
-
-{{conversation_history}}
-
-Now, consider the current dialogue task/stage that needs to be evaluated:
-- Current stage: {{current_state}}
-- Subskill focus: {{subskill}}
-- User's latest message: {{user_message}}
-- Current skill score: {{score}}
-
-The stages in our learning flow are:
-A. Introduction - Explaining the concept to master
-B. MCQ Question - Presenting a multiple-choice question
-C. MCQ Feedback - Providing feedback on the MCQ answer
-D. Freeform Practice - Allowing free practice of the concept
-E. Feedback and Continue - Providing feedback and moving to another practice scenario
-F. Feedback and Stop - Final feedback and completion
-
-Each stage has specific objectives:
-- Stage A: The trainee should acknowledge understanding of the concept.
-- Stage B: The trainee should answer the multiple-choice question.
-- Stage C: The trainee should acknowledge the MCQ feedback.
-- Stage D: The trainee should demonstrate application of the skill in 2-3 exchanges.
-- Stage E: The trainee should reflect on feedback and express readiness for another scenario.
-- Stage F: The trainee should acknowledge final feedback, demonstrating understanding of key takeaways.
-
-You should evaluate whether the therapist has successfully achieved the current stage's task based on the provided dialogue history.
-
-You must provide your decision in a JSON format with the following structure:
-{
-  "rationale": "A concise explanation of your reasoning",
-  "transition": "Either 'continue' if the task is ongoing or 'completed' if the task has been successfully completed"
-}
-
-Transition Guidelines:
-- Use 'continue' when the therapist needs more practice or hasn't fully demonstrated understanding of the current stage
-- Use 'completed' when the therapist has demonstrated sufficient understanding and is ready to move to the next stage
-
-If the user explicitly asks to move to a different stage or skip ahead, you should recognize this request but still base your transition decision on whether they've met the learning objectives of the current stage.
+ERROR
 """
         
         # Replace placeholders
