@@ -17,7 +17,7 @@ api_key = os.getenv("OPENAI_API_KEY")
  # organization=organization
 # Initialize OpenAI client with only supported parameters
 
-client = OpenAI()
+client = OpenAI(api_key=api_key)
 
 
 # Set database path

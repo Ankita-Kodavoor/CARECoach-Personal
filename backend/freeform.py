@@ -25,7 +25,7 @@ organization = os.getenv("OPENAI_ORGANIZATION")
 project = os.getenv("OPENAI_PROJECT")
 
 print(f"OpenAI API Key available: {bool(api_key)}", file=sys.stderr)
-client = OpenAI()
+client = OpenAI(api_key=api_key)
 # client = OpenAI(api_key=api_key, organization=organization, project=project)
 
 # Set database path using environment variable

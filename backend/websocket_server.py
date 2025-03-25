@@ -527,6 +527,8 @@ async def get_subskill_progress_api(practicesession_id: int):
         
 # Run the server with dynamic port from environment
 if __name__ == "__main__":
+    import os
     import uvicorn
     port = int(os.environ.get("PORT", 5000))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    uvicorn.run("backend.websocket_server:app", host="0.0.0.0", port=port, reload=True)
+

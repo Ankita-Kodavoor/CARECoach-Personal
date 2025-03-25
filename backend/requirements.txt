@@ -11,3 +11,4 @@ alembic==1.12.1  # For database migrations
 pytest==7.4.3   # For writing tests
 pytest-asyncio==0.21.1  # If you have async tests
 python-jose==3.3.0  # If you need JWT authentication
+openai==1.6.0
