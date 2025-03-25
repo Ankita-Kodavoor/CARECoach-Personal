@@ -17,7 +17,14 @@ api_key = os.getenv("OPENAI_API_KEY")
  # organization=organization
 # Initialize OpenAI client with only supported parameters
 
+# Remove empty proxy environment variables
+if os.environ.get('HTTP_PROXY') == '':
+    del os.environ['HTTP_PROXY']
+if os.environ.get('HTTPS_PROXY') == '':
+    del os.environ['HTTPS_PROXY']
+
 client = OpenAI(api_key=api_key)
+
 
 
 # Set database path

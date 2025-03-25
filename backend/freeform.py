@@ -25,6 +25,12 @@ organization = os.getenv("OPENAI_ORGANIZATION")
 project = os.getenv("OPENAI_PROJECT")
 
 print(f"OpenAI API Key available: {bool(api_key)}", file=sys.stderr)
+# Remove empty proxy environment variables
+if os.environ.get('HTTP_PROXY') == '':
+    del os.environ['HTTP_PROXY']
+if os.environ.get('HTTPS_PROXY') == '':
+    del os.environ['HTTPS_PROXY']
+    
 client = OpenAI(api_key=api_key)
 # client = OpenAI(api_key=api_key, organization=organization, project=project)
 

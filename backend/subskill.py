@@ -14,6 +14,12 @@ load_dotenv()
 
 api_key=os.getenv("OPENAI_API_KEY")
 
+# Remove empty proxy environment variables
+if os.environ.get('HTTP_PROXY') == '':
+    del os.environ['HTTP_PROXY']
+if os.environ.get('HTTPS_PROXY') == '':
+    del os.environ['HTTPS_PROXY']
+    
 # Initialize the OpenAI client
 client = OpenAI(api_key=api_key)
 
