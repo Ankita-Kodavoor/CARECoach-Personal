@@ -1,48 +1,41 @@
+# Frontend build stage
 FROM node:18 AS frontend-builder
 
 WORKDIR /app/frontend
 
-# Copy package files and install dependencies
+# Install dependencies
 COPY frontend/package*.json ./
 RUN npm install
 
-# Copy frontend source code
+# Copy frontend source code and build
 COPY frontend/ ./
-
-# Build the frontend
 RUN npm run build
 
-# Use Python for the backend
-FROM python:3.9-slim
+# Backend stage
+FROM python:3.9-alpine  
+#Use alpine for a smaller image
 
 WORKDIR /app
 
-# Install Node.js and npm for serving the frontend
-RUN apt-get update && apt-get install -y \
-    nodejs \
-    npm \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
-# Copy backend requirements and install
+# Install Python dependencies first
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt && rm -rf /root/.cache
 
-# Copy built frontend assets
+# Copy frontend build
 COPY --from=frontend-builder /app/frontend/build /app/public
 
-# Copy backend code - make sure it goes into a backend directory
+# Copy backend code
 COPY backend/ ./backend/
 
-# Create a directory for the database
+# Ensure database directory exists
 RUN mkdir -p /data
 
-# Environment variables
+# Set environment variables
 ENV DB_PATH=/data/test_input_v3.db
 ENV NODE_ENV=production
 
-# Expose port (Railway will override this with its own PORT)
+# Expose port (Railway sets this automatically)
 EXPOSE 5000
 
-# Let Railway.json handle the start command
+# Start backend server
 CMD uvicorn backend.websocket_server:app --host 0.0.0.0 --port ${PORT:-5000}
