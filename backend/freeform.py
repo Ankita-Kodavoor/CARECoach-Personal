@@ -18,11 +18,15 @@ from .subskill_manager import (
     get_subskill_progress
 )
 
+# Define current_dir for loading prompts and other file operations
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
 # Load environment variables and set up OpenAI
 load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY")
 organization = os.getenv("OPENAI_ORGANIZATION")
 project = os.getenv("OPENAI_PROJECT")
+
 
 print(f"OpenAI API Key available: {bool(api_key)}", file=sys.stderr)
 # Remove empty proxy environment variables
@@ -33,10 +37,13 @@ if os.environ.get('HTTPS_PROXY') == '':
     
 client = OpenAI(api_key=api_key)
 # client = OpenAI(api_key=api_key, organization=organization, project=project)
+# # Replace this:
+# current_dir = os.path.dirname(os.path.abspath(__file__))
+# DB_PATH = os.environ.get('DB_PATH', os.path.join(current_dir, "test_input_v3.db"))
 
-# Set database path using environment variable
-current_dir = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.environ.get('DB_PATH', os.path.join(current_dir, "test_input_v3.db"))
+# With this:
+from . import config
+DB_PATH = config.DB_PATH
 
 print(f"Freeform module using DB path: {DB_PATH}", file=sys.stderr)
 

@@ -1,8 +1,10 @@
-import sqlite3
 import sys
 import json
 import traceback
 import os
+from . import database
+# Get database connection from database module
+
 
 def get_unique_subskills(practicesession_id):
     """
@@ -11,11 +13,7 @@ def get_unique_subskills(practicesession_id):
     The utterance_id will be the last (highest) utterance_id for that subskill.
     """
     try:
-        # Get database path
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        DB_PATH = os.path.join(current_dir, "test_input_v3.db")
-        
-        conn = sqlite3.connect(DB_PATH)
+        conn = database.get_db_connection()
         cursor = conn.cursor()
         
         # Use a subquery to get the latest utterance_id for each subskill
@@ -25,10 +23,10 @@ def get_unique_subskills(practicesession_id):
             INNER JOIN (
                 SELECT subskill, MAX(utterance_id) as max_utterance_id
                 FROM subskill_map
-                WHERE practicesession_id = ?
+                WHERE practicesession_id = %s
                 GROUP BY subskill
             ) latest_sm ON sm.subskill = latest_sm.subskill AND sm.utterance_id = latest_sm.max_utterance_id
-            WHERE sm.practicesession_id = ?
+            WHERE sm.practicesession_id = %s
             ORDER BY sm.utterance_id
         """, (practicesession_id, practicesession_id))
         
@@ -106,18 +104,14 @@ def mark_subskill_completed(practicesession_id, subskill):
     Returns True if successful, False otherwise.
     """
     try:
-        # Get database path
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        DB_PATH = os.path.join(current_dir, "test_input_v3.db")
-        
-        conn = sqlite3.connect(DB_PATH)
+        conn = database.get_db_connection()
         cursor = conn.cursor()
         
         # Update the completed status for all instances of this subskill
         cursor.execute("""
             UPDATE subskill_map
-            SET completed = 1
-            WHERE practicesession_id = ? AND subskill = ?
+            SET completed = TRUE
+            WHERE practicesession_id = %s AND subskill = %s
         """, (practicesession_id, subskill))
         
         conn.commit()
@@ -174,18 +168,14 @@ def get_current_subskill(practicesession_id):
     Returns the subskill or None if no subskill is set.
     """
     try:
-        # Get database path
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        DB_PATH = os.path.join(current_dir, "test_input_v3.db")
-        
-        conn = sqlite3.connect(DB_PATH)
+        conn = database.get_db_connection()
         cursor = conn.cursor()
         
         # Get the current subskill from the practice_session table
         cursor.execute("""
             SELECT target_subskill 
             FROM practice_session
-            WHERE practicesession_id = ?
+            WHERE practicesession_id = %s
         """, (practicesession_id,))
         
         row = cursor.fetchone()
@@ -219,15 +209,12 @@ def update_session_with_next_subskill(practicesession_id):
         if check_all_subskills_completed(practicesession_id):
             print(f"All subskills are completed for practice session ID: {practicesession_id}", file=sys.stderr)
             # Update the practice session to set a special "completed" state
-            current_dir = os.path.dirname(os.path.abspath(__file__))
-            DB_PATH = os.path.join(current_dir, "test_input_v3.db")
-            
-            conn = sqlite3.connect(DB_PATH)
+            conn = database.get_db_connection()
             cursor = conn.cursor()
             cursor.execute("""
                 UPDATE practice_session
                 SET current_state = 'completed'
-                WHERE practicesession_id = ?
+                WHERE practicesession_id = %s
             """, (practicesession_id,))
             
             conn.commit()
@@ -241,20 +228,16 @@ def update_session_with_next_subskill(practicesession_id):
             print(f"No next subskill available for practice session ID: {practicesession_id}", file=sys.stderr)
             return False
         
-        # Get database path
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        DB_PATH = os.path.join(current_dir, "test_input_v3.db")
-        
-        conn = sqlite3.connect(DB_PATH)
+        conn = database.get_db_connection()
         cursor = conn.cursor()
         
         # Update the practice session with the next subskill
         cursor.execute("""
             UPDATE practice_session
-            SET target_subskill = ?,
-                target_utterance_id = ?,
-                utterance_rewind = ?
-            WHERE practicesession_id = ?
+            SET target_subskill = %s,
+                target_utterance_id = %s,
+                utterance_rewind = %s
+            WHERE practicesession_id = %s
         """, (
             next_subskill_data["subskill"],
             next_subskill_data["utterance_id"],

@@ -20,3 +20,4 @@ pydantic>=2.0.0  # Added from backend
 alembic==1.12.1  # Added from backend
 pytest-asyncio==0.21.1  # Added from backend
 # httpx==0.27.2  # Added from backend
+psycopg2-binary==2.9.9  # PostgreSQL adapter

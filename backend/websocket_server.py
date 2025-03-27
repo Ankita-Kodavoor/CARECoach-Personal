@@ -1,31 +1,24 @@
 import os
 import sys
 import json
-import sqlite3
 import traceback
 import inspect
 import datetime
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from . import database
+from . import config
 from .response_scorer import score_and_update
 from .freeform import get_freeform
+# Import the module instead of individual functions
+from . import subskill_manager
 
-# Set up database path using environment variable
+# Initialize the database using the database module
+database.initialize_database()
+
+# Define current_dir (for static files)
 current_dir = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.environ.get('DB_PATH', os.path.join(current_dir, "test_input_v3.db"))
-
-print(f"Using database at: {DB_PATH}", file=sys.stderr)
-
-# Check if database exists and create it if not
-if not os.path.exists(DB_PATH):
-    print(f"Database not found at {DB_PATH}. Creating new database...", file=sys.stderr)
-    try:
-        from .create_input_database import create_new_database
-        create_new_database()
-        print(f"New database created at {DB_PATH}", file=sys.stderr)
-    except Exception as e:
-        print(f"Failed to create database: {str(e)}", file=sys.stderr)
 
 # Create FastAPI app
 app = FastAPI()
@@ -62,11 +55,6 @@ class ConnectionManager:
                 "timestamp": formatted_timestamp
             })
 
-# If we have a public folder, mount it
-public_dir = os.path.join(current_dir, "public")
-if os.path.exists(public_dir) and os.path.isdir(public_dir):
-    app.mount("/", StaticFiles(directory=public_dir), name="public")
-
 # Initialize connection manager
 manager = ConnectionManager()
 
@@ -74,14 +62,14 @@ manager = ConnectionManager()
 async def get_session_subskills(practicesession_id: int):
     """API endpoint to get all subskills for a given practice session."""
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = database.get_db_connection()
         cursor = conn.cursor()
         
         # Query the subskill_map table for unique subskills for this session
         cursor.execute("""
             SELECT DISTINCT subskill 
             FROM subskill_map
-            WHERE practicesession_id = ? AND subskill IS NOT NULL
+            WHERE practicesession_id = %s AND subskill IS NOT NULL
             ORDER BY subskill
         """, (practicesession_id,))
         
@@ -130,7 +118,7 @@ async def safe_get_freeform(user_id, chat_code):
 async def safe_get_next_subskill_message(user_id, chat_code):
     try:
         # Import this function to avoid circular imports
-        from freeform import get_next_subskill_message
+        from .freeform import get_next_subskill_message
         
         # Check if the function is async
         if inspect.iscoroutinefunction(get_next_subskill_message):
@@ -154,24 +142,22 @@ async def ping():
 @app.get("/api/debug")
 async def debug_info():
     """Return debug information about the server configuration."""
-    db_exists = os.path.exists(DB_PATH)
-    
     # Try to count sessions in database
     db_session_count = 0
     db_error = None
-    if db_exists:
-        try:
-            conn = sqlite3.connect(DB_PATH)
-            cursor = conn.cursor()
-            cursor.execute("SELECT COUNT(*) FROM practice_session")
-            db_session_count = cursor.fetchone()[0]
-            conn.close()
-        except Exception as e:
-            db_error = str(e)
+    db_url = os.environ.get('DATABASE_URL', 'Not available')
+    
+    try:
+        conn = database.get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT COUNT(*) FROM practice_session")
+        db_session_count = cursor.fetchone()[0]
+        conn.close()
+    except Exception as e:
+        db_error = str(e)
     
     return {
-        "db_path": DB_PATH,
-        "db_exists": db_exists,
+        "database_url": "PostgreSQL: ***" if db_url else "Not configured",
         "db_session_count": db_session_count,
         "db_error": db_error,
         "is_get_freeform_async": inspect.iscoroutinefunction(get_freeform)
@@ -186,44 +172,40 @@ async def get_user_sessions(user_id: str):
     sessions = []
     
     # Try database
-    if os.path.exists(DB_PATH):
+    try:
+        conn = database.get_db_connection()
+        cursor = conn.cursor()
+        
+        # Try to query with user_id
         try:
-            conn = sqlite3.connect(DB_PATH)
-            cursor = conn.cursor()
-            
-            # Check if practice_session table exists
-            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='practice_session'")
-            if cursor.fetchone():
-                # Try to query with user_id
-                try:
-                    cursor.execute("""
-                        SELECT practicesession_id, chat_code, target_subskill 
-                        FROM practice_session
-                        WHERE user_id = ?
-                        ORDER BY practicesession_id DESC
-                    """, (user_id,))
+            cursor.execute("""
+                SELECT practicesession_id, chat_code, target_subskill 
+                FROM practice_session
+                WHERE user_id = %s
+                ORDER BY practicesession_id DESC
+            """, (user_id,))
                     
-                    for row in cursor.fetchall():
-                        practicesession_id, chat_code, target_subskill = row
-                        sessions.append({
-                            "practicesession_id": practicesession_id,
-                            "chat_code": chat_code,
-                            "target_subskill": target_subskill,
-                            "user_id": user_id
-                        })
-                except Exception as e:
-                    error_msg = f"Error querying database: {str(e)}"
-                    
-            conn.close()
-            
-            # If we found sessions, return them
-            if sessions:
-                print(f"Found {len(sessions)} sessions for user {user_id} in database", file=sys.stderr)
-                return {"sessions": sessions}
-                
+            for row in cursor.fetchall():
+                practicesession_id, chat_code, target_subskill = row
+                sessions.append({
+                    "practicesession_id": practicesession_id,
+                    "chat_code": chat_code,
+                    "target_subskill": target_subskill,
+                    "user_id": user_id
+                })
         except Exception as e:
-            error_msg = f"Database error: {str(e)}"
-            traceback.print_exc(file=sys.stderr)
+            error_msg = f"Error querying database: {str(e)}"
+            
+        conn.close()
+        
+        # If we found sessions, return them
+        if sessions:
+            print(f"Found {len(sessions)} sessions for user {user_id} in database", file=sys.stderr)
+            return {"sessions": sessions}
+                
+    except Exception as e:
+        error_msg = f"Database error: {str(e)}"
+        traceback.print_exc(file=sys.stderr)
     
     # If we get here, no sessions were found
     print(f"No sessions found for user {user_id}", file=sys.stderr)
@@ -236,14 +218,14 @@ async def get_user_sessions(user_id: str):
 async def get_utterance_rewind_api(practicesession_id: int):
     """API endpoint to get utterance rewind for a given practice session."""
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = database.get_db_connection()
         cursor = conn.cursor()
         
         # Directly query the utterance_rewind field from the practice_session table
         cursor.execute("""
             SELECT utterance_rewind
             FROM practice_session
-            WHERE practicesession_id = ?
+            WHERE practicesession_id = %s
         """, (practicesession_id,))
         
         result = cursor.fetchone()
@@ -265,6 +247,7 @@ async def get_utterance_rewind_api(practicesession_id: int):
         }
 @app.websocket("/ws/session/{practicesession_id}")
 async def websocket_endpoint(websocket: WebSocket, practicesession_id: int):
+    print(f"WebSocket connected with practicesession_id: {practicesession_id}", file=sys.stderr)
     client_id = f"client_{practicesession_id}_{datetime.datetime.now().timestamp()}"
     
     await manager.connect(websocket, client_id)
@@ -275,25 +258,24 @@ async def websocket_endpoint(websocket: WebSocket, practicesession_id: int):
         chat_code = f"mock-{practicesession_id}"
         
         # Get session from database
-        if os.path.exists(DB_PATH):
-            try:
-                conn = sqlite3.connect(DB_PATH)
-                cursor = conn.cursor()
-                cursor.execute("SELECT user_id, chat_code, current_state FROM practice_session WHERE practicesession_id = ?", 
-                              (practicesession_id,))
+        try:
+            conn = database.get_db_connection()
+            cursor = conn.cursor()
+            cursor.execute("SELECT user_id, chat_code, current_state FROM practice_session WHERE practicesession_id = %s", 
+                          (practicesession_id,))
                 
-                session_data = cursor.fetchone()
-                conn.close()
+            session_data = cursor.fetchone()
+            conn.close()
+            
+            if session_data:
+                user_id, chat_code, current_state = session_data
+                print(f"Found session in DB: user_id={user_id}, chat_code={chat_code}, state={current_state}", file=sys.stderr)
                 
-                if session_data:
-                    user_id, chat_code, current_state = session_data
-                    print(f"Found session in DB: user_id={user_id}, chat_code={chat_code}, state={current_state}", file=sys.stderr)
-                    
-                    # If session is already in completed state, skip forcing next subskill
-                    if current_state == "completed":
-                        print(f"Session {practicesession_id} is already in completed state", file=sys.stderr)
-            except Exception as e:
-                print(f"Error getting session from database: {str(e)}", file=sys.stderr)
+                # If session is already in completed state, skip forcing next subskill
+                if current_state == "completed":
+                    print(f"Session {practicesession_id} is already in completed state", file=sys.stderr)
+        except Exception as e:
+            print(f"Error getting session from database: {str(e)}", file=sys.stderr)
         
         # Use fallback message if get_freeform doesn't work
         fallback_message = "Welcome to the chat! I'm here to help you practice your motivational interviewing skills."
@@ -311,9 +293,9 @@ async def websocket_endpoint(websocket: WebSocket, practicesession_id: int):
                 
             # Check if the session is now in completed state
             try:
-                conn = sqlite3.connect(DB_PATH)
+                conn = database.get_db_connection()
                 cursor = conn.cursor()
-                cursor.execute("SELECT current_state FROM practice_session WHERE practicesession_id = ?", 
+                cursor.execute("SELECT current_state FROM practice_session WHERE practicesession_id = %s", 
                               (practicesession_id,))
                 current_state = cursor.fetchone()[0]
                 conn.close()
@@ -340,9 +322,9 @@ async def websocket_endpoint(websocket: WebSocket, practicesession_id: int):
             
             # Double-check that the session isn't in completed state
             try:
-                conn = sqlite3.connect(DB_PATH)
+                conn = database.get_db_connection()
                 cursor = conn.cursor()
-                cursor.execute("SELECT current_state FROM practice_session WHERE practicesession_id = ?", 
+                cursor.execute("SELECT current_state FROM practice_session WHERE practicesession_id = %s", 
                               (practicesession_id,))
                 current_state = cursor.fetchone()[0]
                 conn.close()
@@ -367,17 +349,16 @@ async def websocket_endpoint(websocket: WebSocket, practicesession_id: int):
             
             # Try to store user message (ignore errors)
             try:
-                # Try to connect to database
-                if os.path.exists(DB_PATH):
-                    conn = sqlite3.connect(DB_PATH)
-                    cursor = conn.cursor()
-                    cursor.execute("""
-                        INSERT INTO freeform_dialogue
-                        (practicesession_id, user_id, utterance, role, state)
-                        VALUES (?, ?, ?, ?, ?)
-                    """, (practicesession_id, user_id, user_message, 'user', None))  
-                    conn.commit()
-                    conn.close()
+                # Connect to database
+                conn = database.get_db_connection()
+                cursor = conn.cursor()
+                cursor.execute("""
+                    INSERT INTO freeform_dialogue
+                    (practicesession_id, user_id, utterance, role, state)
+                    VALUES (%s, %s, %s, %s, %s)
+                """, (practicesession_id, user_id, user_message, 'user', None))  
+                conn.commit()
+                conn.close()
             except Exception as e:
                 print(f"Could not store message: {str(e)}", file=sys.stderr)
             
@@ -396,9 +377,9 @@ async def websocket_endpoint(websocket: WebSocket, practicesession_id: int):
                     
                 # Check if session is now in completed state
                 try:
-                    conn = sqlite3.connect(DB_PATH)
+                    conn = database.get_db_connection()
                     cursor = conn.cursor()
-                    cursor.execute("SELECT current_state FROM practice_session WHERE practicesession_id = ?", 
+                    cursor.execute("SELECT current_state FROM practice_session WHERE practicesession_id = %s", 
                                   (practicesession_id,))
                     current_state = cursor.fetchone()[0]
                     conn.close()
@@ -425,9 +406,9 @@ async def websocket_endpoint(websocket: WebSocket, practicesession_id: int):
                 
                 # Double-check that the session isn't in completed state
                 try:
-                    conn = sqlite3.connect(DB_PATH)
+                    conn = database.get_db_connection()
                     cursor = conn.cursor()
-                    cursor.execute("SELECT current_state FROM practice_session WHERE practicesession_id = ?", 
+                    cursor.execute("SELECT current_state FROM practice_session WHERE practicesession_id = %s", 
                                   (practicesession_id,))
                     current_state = cursor.fetchone()[0]
                     conn.close()
@@ -462,10 +443,13 @@ async def get_current_subskill_api(practicesession_id: int):
     """API endpoint to get the current target subskill for a practice session."""
     try:
         # Import the function from subskill_manager
-        from subskill_manager import get_current_subskill
+        # Import the module instead of individual functions
         
-        # Get the current subskill
-        current_subskill = get_current_subskill(practicesession_id)
+
+        # To this:
+        current_subskill = subskill_manager.get_current_subskill(practicesession_id)
+        # # Get the current subskill
+        # current_subskill = get_current_subskill(practicesession_id)
         
         return {
             'success': True,
@@ -486,16 +470,18 @@ async def get_subskill_progress_api(practicesession_id: int):
     """API endpoint to get subskill progress for a given practice session."""
     try:
         # Import the functions from subskill_manager
-        from subskill_manager import get_subskill_progress, get_unique_subskills, get_current_subskill
+        # Import the module
+        # from . import subskill_manager
+        # from subskill_manager import get_subskill_progress, get_unique_subskills, get_current_subskill
         
         # Get the progress data
-        progress = get_subskill_progress(practicesession_id)
-        
+        progress = subskill_manager.get_subskill_progress(practicesession_id)
+
         # Get unique subskills with completion status
-        unique_subskills = get_unique_subskills(practicesession_id)
-        
+        unique_subskills = subskill_manager.get_unique_subskills(practicesession_id)
+
         # Get the current target subskill directly
-        current_subskill = get_current_subskill(practicesession_id)
+        current_subskill = subskill_manager.get_current_subskill(practicesession_id)
         
         # Extract completed subskills
         completed_subskills = [s["subskill"] for s in unique_subskills if s["completed"]]
@@ -526,7 +512,12 @@ async def get_subskill_progress_api(practicesession_id: int):
         }
         
 # Run the server with dynamic port from environment
-if __name__ == "__main__":
+if __name__ == "__main__":    
+    # If we have a public folder, mount it
+    public_dir = os.path.join(current_dir, "public")
+    if os.path.exists(public_dir) and os.path.isdir(public_dir):
+        app.mount("/", StaticFiles(directory=public_dir), name="public")
+
     import os
     import uvicorn
     port = int(os.environ.get("PORT", 5000))

@@ -3,9 +3,9 @@ simple_response_scorer.py - Minimal OpenAI-based response scoring
 """
 import os
 import sys
-import sqlite3
 from openai import OpenAI
 from dotenv import load_dotenv
+from . import database
 
 # Load environment variables for OpenAI
 load_dotenv()
@@ -17,19 +17,13 @@ api_key = os.getenv("OPENAI_API_KEY")
  # organization=organization
 # Initialize OpenAI client with only supported parameters
 
-# Remove empty proxy environment variables
+# Initialize OpenAI client
 if os.environ.get('HTTP_PROXY') == '':
     del os.environ['HTTP_PROXY']
 if os.environ.get('HTTPS_PROXY') == '':
     del os.environ['HTTPS_PROXY']
 
 client = OpenAI(api_key=api_key)
-
-
-
-# Set database path
-current_dir = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(current_dir, "test_input_v3.db")
 
 def score_response(conversation_history):
     """
@@ -137,14 +131,14 @@ def update_last_user_score(practicesession_id, score, utterance):
     If no matching record exists in score_history, creates a new one.
     """
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = database.get_db_connection()
         cursor = conn.cursor()
         
         # First, get the most recent practice_chat_id
         cursor.execute("""
             SELECT practice_chat_id
             FROM freeform_dialogue
-            WHERE practicesession_id = ?
+            WHERE practicesession_id = %s
             AND role = 'user'
             ORDER BY practice_chat_id DESC
             LIMIT 1
@@ -161,15 +155,15 @@ def update_last_user_score(practicesession_id, score, utterance):
         # Try to update existing record
         cursor.execute("""
             UPDATE score_history
-            SET score = ?, utterance = ?
-            WHERE practice_chat_id = ?
+            SET score = %s, utterance = %s
+            WHERE practice_chat_id = %s
         """, (score, utterance, practice_chat_id))
         
         # If no rows were affected, insert a new record
         if cursor.rowcount == 0:
             cursor.execute("""
                 INSERT INTO score_history (practice_chat_id, practicesession_id, score, utterance)
-                VALUES (?, ?, ?, ?)
+                VALUES (%s, %s, %s, %s)
             """, (practice_chat_id, practicesession_id, score, utterance))
             
         conn.commit()

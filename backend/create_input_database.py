@@ -1,16 +1,15 @@
 import sqlite3
 import os
 import sys
-from simplest_ranking import compute_final_rank, find_first_utterance
-from freeform import get_freeform
 import datetime
 import traceback
 
-# Import subskill_classifier directly from subskill.py with an alternate name
-# to avoid conflicts with our wrapper function below
-from subskill import subskill_classifier as original_classifier
-
-from simplest_ranking import find_all_utterances
+# Use consistent imports - either all relative or all absolute
+# Since this is part of a package, use relative imports consistently
+from .simplest_ranking import compute_final_rank, find_first_utterance, find_all_utterances
+from .freeform import get_freeform
+from .subskill import subskill_classifier as original_classifier
+from . import config
 
 # Create a wrapper function with the same name that ensures the correct parameters are passed
 def subskill_classifier(utterance, feedback=None):
@@ -31,14 +30,17 @@ def subskill_classifier(utterance, feedback=None):
         # Return a default value on error
         return "Using more open-ended questions/probes"
 
-# existing database
-DB_PATH = "/Users/ankitakodavoor/Desktop/saltcare.db"
-# new database 
-NEW_DB_PATH = "test_input_v3.db"
+# Print the paths being used for clarity
+print(f"Source database (saltcare.db): {config.EXTERNAL_DB_PATH}", file=sys.stderr)
+print(f"Destination database (test_input_v3.db): {config.DB_PATH}", file=sys.stderr)
 
 def create_new_database():
     """Creates a new database to store extracted information."""
-    conn = sqlite3.connect(NEW_DB_PATH)
+    # Ensure the directory exists
+    os.makedirs(os.path.dirname(os.path.abspath(config.DB_PATH)), exist_ok=True)
+    
+    print(f"Creating new database at: {config.DB_PATH}", file=sys.stderr)
+    conn = sqlite3.connect(config.DB_PATH)
     cursor = conn.cursor()
     
     # Create table for conversation
@@ -145,10 +147,11 @@ def create_new_database():
                    
     conn.commit()
     conn.close()
+    print(f"New database created successfully at {config.DB_PATH}", file=sys.stderr)
 
 def store_extracted_data(conversation, feedback, user_id, chat_code):
     """Stores extracted data into the new database without calling the old workflow functions."""
-    conn = sqlite3.connect(NEW_DB_PATH)
+    conn = sqlite3.connect(config.DB_PATH)
     cursor = conn.cursor()
     
     try:
@@ -179,9 +182,6 @@ def store_extracted_data(conversation, feedback, user_id, chat_code):
         
     finally:
         conn.close()
-    
-    # No longer calling compute_and_store_target_skill() and populate_subskill_map() here
-    # Those are now handled by the process_conversation_data() function
 
 def process_conversation_data(user_id, chat_code):
     """
@@ -190,7 +190,7 @@ def process_conversation_data(user_id, chat_code):
     2. Populate subskill map with feedback
     3. Update practice session with first subskill
     """
-    conn = sqlite3.connect(NEW_DB_PATH)
+    conn = sqlite3.connect(config.DB_PATH)
     cursor = conn.cursor()
     
     try:
@@ -268,6 +268,7 @@ def process_conversation_data(user_id, chat_code):
                 
             except Exception as e:
                 print(f"Error classifying subskill for utterance {utterance_id}: {str(e)}")
+                traceback.print_exc()
                 continue
         
         conn.commit()
@@ -275,6 +276,7 @@ def process_conversation_data(user_id, chat_code):
         # Step 4: Get the first flawed utterance (assuming they're ordered correctly)
         first_utterance_id = flawed_utterance_ids[0]
         
+        # Get the subskill for this utterance from the subskill_map
         # Get the subskill for this utterance from the subskill_map
         cursor.execute("""
             SELECT subskill FROM subskill_map
@@ -372,9 +374,16 @@ def process_conversation_data(user_id, chat_code):
 
 def get_conversation_data(user_id, chat_code):
     try:
-        create_new_database() # Creating a new database
+        # Create a new database if it doesn't exist
+        create_new_database()
         
-        conn = sqlite3.connect(DB_PATH)
+        # Check if source database exists
+        if not os.path.exists(config.EXTERNAL_DB_PATH):
+            print(f"ERROR: Source database not found at {config.EXTERNAL_DB_PATH}", file=sys.stderr)
+            return {"error": f"Source database not found at {config.EXTERNAL_DB_PATH}"}
+            
+        print(f"Reading data from source database: {config.EXTERNAL_DB_PATH}", file=sys.stderr)
+        conn = sqlite3.connect(config.EXTERNAL_DB_PATH)
         cursor = conn.cursor()
 
         cursor.execute("""
@@ -426,6 +435,8 @@ def get_conversation_data(user_id, chat_code):
 
         conn.close()
         
+        print(f"Writing data to destination database: {config.DB_PATH}", file=sys.stderr)
+        
         # Store the extracted data in the new database
         store_extracted_data(conversation_history, feedback_list, user_id, chat_code)
         
@@ -441,18 +452,7 @@ def get_conversation_data(user_id, chat_code):
         print(f"Error in get_conversation_data: {str(e)}")
         traceback.print_exc()
         return {"error": str(e)}
-
-# The old functions are kept here for reference but are no longer used in the main workflow
-def compute_and_store_target_skill(user_id, chat_code):
-    """DEPRECATED: This function is no longer used in the main workflow."""
-    print("WARNING: compute_and_store_target_skill is deprecated and should not be called directly")
-    # Implementation removed to prevent accidental use
-
-def populate_subskill_map(user_id, chat_code):
-    """DEPRECATED: This function is no longer used in the main workflow."""
-    print("WARNING: populate_subskill_map is deprecated and should not be called directly")
-    # Implementation removed to prevent accidental use
-
+    
 if __name__ == "__main__":
     # Test the subskill classifier wrapper to make sure it's working
     try:
@@ -461,11 +461,33 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"WARNING: Subskill classifier test failed: {str(e)}")
         traceback.print_exc()
-
+    
+    # Print database paths for clarity
+    print(f"\nDatabase paths:")
+    print(f"  Source database (saltcare.db): {config.EXTERNAL_DB_PATH}")
+    print(f"  Destination database (test_input_v3.db): {config.DB_PATH}")
+    
+    # Check if source database exists
+    if not os.path.exists(config.EXTERNAL_DB_PATH):
+        print(f"\nERROR: Source database not found at {config.EXTERNAL_DB_PATH}")
+        print("Please specify the correct path using the EXTERNAL_DB_PATH environment variable.")
+        sys.exit(1)
+    
     while True:
-        user_id = input("Enter user ID (or type 'exit' to quit): ")
+        user_id = input("\nEnter user ID (or type 'exit' to quit): ")
         if user_id.lower() == "exit":
             break
         chat_code = input("Enter chat code: ")
         result = get_conversation_data(user_id, chat_code)
-        print("Data extraction complete. Check .db file for results.")
+        if "error" in result:
+            print(f"ERROR: {result['error']}")
+        else:
+            print(f"Data extraction complete. Processed {len(result['conversation'])} conversation entries and {len(result['feedback'])} feedback entries.")
+            print(f"Data written to: {config.DB_PATH}")
+        
+        # Ask if user wants to continue
+        continue_choice = input("\nProcess another conversation? (y/n): ")
+        if continue_choice.lower() != 'y':
+            break
+    
+    print("\nData migration complete.")

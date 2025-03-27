@@ -26,7 +26,9 @@ client = OpenAI(api_key=api_key)
 def load_system_prompt():
     """Load the system prompt from the YAML file"""
 
-    prompt_path = "./prompts/subskill.yml"
+    # Use absolute path instead of relative path
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    prompt_path = os.path.join(script_dir, "prompts", "subskill.yml")
     
     if not os.path.exists(prompt_path):
         print(f"Error: Could not find subskill.yml at {prompt_path}", file=sys.stderr)
